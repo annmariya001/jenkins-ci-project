@@ -1,33 +1,26 @@
 pipeline {
-
     agent any
 
     stages {
 
         stage('Checkout') {
             steps {
+                echo 'Checking out code...'
                 checkout scm
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Build Docker Image') {
             steps {
-                sh '''
-                    python3 -m venv venv
-                    venv/bin/pip install -r requirements.txt
-                '''
+                echo 'Building Docker image...'
+                sh 'docker build -t jenkins-ci-project .'
             }
         }
 
-        stage('Test') {
+        stage('Run Tests') {
             steps {
-                sh 'venv/bin/pytest'
-            }
-        }
-
-        stage('Build') {
-            steps {
-                sh 'venv/bin/python app.py'
+                echo 'Running tests inside Docker...'
+                sh 'docker run --rm jenkins-ci-project'
             }
         }
     }
